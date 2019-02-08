@@ -1,0 +1,47 @@
+install.packages('TSA')
+install.packages('tseries')
+
+library(TSA)
+library(tseries)
+index<-ts(read.table("clipboard")[[1]],start=2003,frequency=12)
+BoxCox.ar(index)
+idx<-log(index)
+plot(index,main="EPU Index India (Jan 2003- June 2018)")
+plot(idx,main="Time series plot of the logged data")
+plot(acf(idx),main="ACF plot of the logged data")
+adf.test(idx)
+idx_dif<-diff(idx)
+plot(idx_dif,main="Plot of the returns")
+plot(acf(idx_dif),main="ACF plot of the returns")
+adf.test(idx_dif)
+plot(pacf(idx_dif),main="PACF plot of the returns")
+eacf(idx_dif)
+plot(armasubsets(idx_dif,nma=4,nar=4))
+model1=arima(idx,order=c(1,1,2))
+model1
+confint(model1)
+tsdiag(model1)
+model2=arima(idx,order=c(2,1,2))
+model2
+confint(model2)
+model3=arima(idx,order=c(1,1,2),fixed=c(NA,0,NA))
+model3
+confint(model3)
+tsdiag(model3)
+shapiro.test(rstandard(model3))
+tsdiag(model2)
+shapiro.test(rstandard(model2))
+mdl3_pred=plot(model3,3)[1:3]
+pred=exp(mdl3_pred$pred)
+ul=exp(mdl3_pred$upi)
+ll=exp(mdl3_pred$lpi)
+pred_model3=cbind(pred,ul,ll)
+mdl1_pred=plot(model3,3)[1:3]
+pred=exp(mdl1_pred$pred)
+ul=exp(mdl1_pred$upi)
+ll=exp(mdl1_pred$lpi)
+pred_model1=cbind(pred,ul,ll)
+
+plot(model3,22,main="Forecast by the model without MA(1) term")
+plot(model1,22,main="Forecast by the model with MA(1) term")
+     
